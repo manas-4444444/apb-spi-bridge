@@ -1,0 +1,8 @@
+# Synthesis for a Lattice iCE40 HX8K FPGA
+#   yosys -s synth_ice40.ys
+read_verilog ../rtl/spi_master.v ../rtl/apb_spi_wrapper.v
+chparam -set CLK_DIV 4 apb_spi_wrapper
+synth_ice40 -top apb_spi_wrapper -json apb_spi.json
+tee -o synth_ice40_stat.txt stat
+# gate-level netlist of the mapped design, for post-synthesis simulation
+write_verilog -noattr apb_spi_netlist.v

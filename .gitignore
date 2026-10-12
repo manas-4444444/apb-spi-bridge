@@ -1,0 +1,15 @@
+build/
+formal/core_*/
+formal/bridge_*/
+syn/*.json
+syn/*.asc
+syn/*.log
+syn/*_stat.txt
+syn/apb_spi_netlist.v
+syn/apb_spi_routed_netlist.v
+cov/obj_dir/
+cov/coverage.dat
+cov/build.log
+*.vcd
+*.fst
+.DS_Store

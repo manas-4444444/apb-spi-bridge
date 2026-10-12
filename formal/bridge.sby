@@ -1,0 +1,36 @@
+# Formal check of the full APB-to-SPI bridge (CLK_DIV = 2 for speed)
+#   sby -f bridge.sby prove   fixed RTL (rtl/)          -> PASS (unbounded proof)
+#   sby -f bridge.sby orig    original RTL (rtl_orig/)  -> FAIL + counterexample trace
+#   sby -f bridge.sby cover   trace of a full CPU transaction on the fixed RTL
+[tasks]
+prove
+orig
+cover
+
+[options]
+prove: mode prove
+orig:  mode prove
+cover: mode cover
+cover: depth 40
+
+[engines]
+prove: abc pdr
+orig:  abc pdr
+cover: smtbmc yices
+
+[script]
+~orig: read -formal spi_master.v
+~orig: read -formal apb_spi_wrapper.v
+~orig: read -formal apb_spi_formal.v
+orig:  read -formal orig_spi_master.v
+orig:  read -formal orig_apb_spi_wrapper.v
+orig:  read -formal -DORIG_RTL apb_spi_formal.v
+~orig: chparam -set CLK_DIV 2 apb_spi_formal
+prep -top apb_spi_formal
+
+[files]
+~orig: ../rtl/spi_master.v
+~orig: ../rtl/apb_spi_wrapper.v
+orig:  orig_spi_master.v ../rtl_orig/spi_master.v
+orig:  orig_apb_spi_wrapper.v ../rtl_orig/apb_spi_wrapper.v
+apb_spi_formal.v

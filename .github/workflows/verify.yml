@@ -1,0 +1,44 @@
+# Runs the full verification and implementation flow on every push.
+name: verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OSS CAD Suite (Yosys, SymbiYosys, nextpnr, Icarus, Verilator)
+        uses: YosysHQ/setup-oss-cad-suite@v3
+
+      - name: Lint (Verilator -Wall)
+        run: make lint
+
+      - name: Constrained-random regression (5 dividers x 5 seeds)
+        run: make regress
+
+      - name: Formal verification (unbounded proofs + covers)
+        run: make formal
+
+      - name: Formal on the original RTL (expected to find the bug)
+        run: make formal_orig
+
+      - name: Code coverage
+        run: make cov
+
+      - name: Synthesis, place & route, gate-level simulation
+        run: make gls
+
+      - name: Upload waveforms and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-results
+          path: |
+            formal/*/engine_0/*.vcd
+            syn/synth_ice40_stat.txt
+            syn/nextpnr_seed*.log

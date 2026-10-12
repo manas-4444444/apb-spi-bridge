@@ -1,0 +1,2 @@
+# Only the clock is pinned; nextpnr places the rest
+set_io PCLK J3

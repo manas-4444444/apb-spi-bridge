@@ -1,0 +1,25 @@
+# Formal check of the SPI master core, SPI modes 0-3 (CLK_DIV = 4)
+#   sby -f core.sby prove   unbounded proof of all properties (ABC PDR)
+#   sby -f core.sby cover   generate a trace of a complete transfer in each SPI mode
+[tasks]
+prove
+cover
+
+[options]
+prove: mode prove
+cover: mode cover
+cover: depth 45
+
+[engines]
+prove: abc pdr
+cover: smtbmc yices
+
+[script]
+read -formal spi_master.v
+read -formal spi_master_formal.v
+chparam -set CLK_DIV 4 spi_master_formal
+prep -top spi_master_formal
+
+[files]
+../rtl/spi_master.v
+spi_master_formal.v
